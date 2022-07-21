@@ -1,5 +1,4 @@
 # dashboarding
-# Import required libraries
 import pandas as pd
 import dash
 import dash_html_components as html
@@ -10,33 +9,15 @@ import plotly.express as px
 from dash import no_update
 
 
-# Create a dash application
 app = dash.Dash(__name__)
-
-# REVIEW1: Clear the layout and do not display exception till callback gets executed
 app.config.suppress_callback_exceptions = True
-
-# Read the airline data into pandas dataframe
 airline_data =  pd.read_csv('https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-DV0101EN-SkillsNetwork/Data%20Files/airline_data.csv', 
                             encoding = "ISO-8859-1",
                             dtype={'Div1Airport': str, 'Div1TailNum': str, 
                                    'Div2Airport': str, 'Div2TailNum': str})
 
-
-# List of years 
 year_list = [i for i in range(2005, 2021, 1)]
 
-"""Compute graph data for creating yearly airline performance report 
-
-Function that takes airline data as input and create 5 dataframes based on the grouping condition to be used for plottling charts and grphs.
-
-Argument:
-     
-    df: Filtered dataframe
-    
-Returns:
-   Dataframes to create graph. 
-"""
 def compute_data_choice_1(df):
     # Cancellation Category Count
     bar_data = df.groupby(['Month','CancellationCode'])['Flights'].sum().reset_index()
@@ -50,17 +31,6 @@ def compute_data_choice_1(df):
     tree_data = df.groupby(['DestState', 'Reporting_Airline'])['Flights'].sum().reset_index()
     return bar_data, line_data, div_data, map_data, tree_data
 
-
-"""Compute graph data for creating yearly airline delay report
-
-This function takes in airline data and selected year as an input and performs computation for creating charts and plots.
-
-Arguments:
-    df: Input airline data.
-    
-Returns:
-    Computed average dataframes for carrier delay, weather delay, NAS delay, security delay, and late aircraft delay.
-"""
 def compute_data_choice_2(df):
     # Compute delay averages
     avg_car = df.groupby(['Month','Reporting_Airline'])['CarrierDelay'].mean().reset_index()
@@ -70,8 +40,6 @@ def compute_data_choice_2(df):
     avg_late = df.groupby(['Month','Reporting_Airline'])['LateAircraftDelay'].mean().reset_index()
     return avg_car, avg_weather, avg_NAS, avg_sec, avg_late
 
-
-# Application layout
 app.layout = html.Div(children=[ 
                                 # TASK1: Add title to the dashboard
                                 # Enter your code below. Make sure you have correct formatting.
@@ -134,9 +102,6 @@ app.layout = html.Div(children=[
                                 ], style = {'display':'flex'})                               
                                 ])
 
-# Callback function definition
-# TASK4: Add 5 ouput components
-# Enter your code below. Make sure you have correct formatting.
 @app.callback( [Output(component_id = 'plot1', component_property = 'children'),
                 Output(component_id = 'plot2', component_property = 'children'),
                 Output(component_id = 'plot3', component_property = 'children'),
@@ -149,7 +114,6 @@ app.layout = html.Div(children=[
                 State("plot3", "children"), State("plot4", "children"),
                 State("plot5", "children")
                ])
-# Add computation to callback function and return graph
 def get_graph(chart, year, children1, children2, c3, c4, c5):
       
         # Select data
@@ -216,7 +180,5 @@ def get_graph(chart, year, children1, children2, c3, c4, c5):
                    dcc.Graph(figure=sec_fig), 
                    dcc.Graph(figure=late_fig)]
 
-
-# Run the app
 if __name__ == '__main__':
     app.run_server()
